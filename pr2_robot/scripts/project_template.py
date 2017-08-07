@@ -75,6 +75,22 @@ def passthrough_filter(cloud, filter_axis, axis_min, axis_max):
 
     return cloud_filtered
 
+def outlier_filter(cloud, mean_k, scale):
+    # Create the filter object
+    outlier_filter = cloud.make_statistical_outlier_filter()
+
+    # Set the number of neighboring points to analyze for any given point
+    outlier_filter.set_mean_k(mean_k)
+
+    # Any point with a mean distance larger than global
+    # (mean distance + scale * std_dev) will be considered an outlier
+    outlier_filter.set_std_dev_mul_thresh(scale)
+
+    cloud_filtered = outlier_filter.filter()
+
+    return cloud_filtered
+
+
 # Callback function for your Point Cloud Subscriber
 def pcl_callback(pcl_msg):
 
@@ -83,13 +99,16 @@ def pcl_callback(pcl_msg):
     # Convert ROS msg to PCL data
     point_cloud = ros_to_pcl(pcl_msg)
     
-    # TODO: Statistical Outlier Filtering
+    # Statistical Outlier Filtering
+    # TODO: adjust number of neighboring points to analyze (mean_k)
+    outlier_filtered = outlier_filter(point_cloud, 50, 1.0)
 
     # Voxel Grid Downsampling
-    cloud_downsampled = vox_downsample(point_cloud)
+    cloud_downsampled = vox_downsample(outlier_filtered)
 
     # RANSAC Plane Segmentation
     # PassThrough Filtering
+    # TODO: adjust filters to match pr2 environment
     cloud_filtered_z = passthrough_filter(cloud_downsampled, 'z', 0.6, 1.1)
     cloud_filtered_yz = passthrough_filter(cloud_filtered_z, 'y', -2.3, -1.4)
 
@@ -192,7 +211,7 @@ def pcl_callback(pcl_msg):
         do.cloud = ros_cluster
         detected_objects.append(do)
 
-    rospy.loginfo('Detected {} objects: {}'.format(len(detected_objects_labels), detected_objects_lables))
+    rospy.loginfo('Detected {} objects: {}'.format(len(detected_objects_labels), detected_objects_labels))
 
     # Publish the list of detected objects
     detected_objects_pub.publish(detected_objects)
@@ -201,7 +220,7 @@ def pcl_callback(pcl_msg):
     # Could add some logic to determine whether or not your object detections are robust
     # before calling pr2_mover()
     try:
-        pr2_mover(detected_objects_list)
+        pr2_mover(detected_objects)
     except rospy.ROSInterruptException:
         pass
 
@@ -233,9 +252,9 @@ def pr2_mover(object_list):
             pick_place_routine = rospy.ServiceProxy('pick_place_routine', PickPlace)
 
             # TODO: Insert your message variables to be sent as a service request
-            resp = pick_place_routine(TEST_SCENE_NUM, OBJECT_NAME, WHICH_ARM, PICK_POSE, PLACE_POSE)
+            # resp = pick_place_routine(TEST_SCENE_NUM, OBJECT_NAME, WHICH_ARM, PICK_POSE, PLACE_POSE)
 
-            print ("Response: ",resp.success)
+            # print ("Response: ",resp.success)
 
         except rospy.ServiceException, e:
             print "Service call failed: %s"%e
@@ -246,11 +265,14 @@ def pr2_mover(object_list):
 
 if __name__ == '__main__':
 
-    # TODO: ROS node initialization
+    # ROS node initialization
+    rospy.init_node('perception', anonymous=True)
 
-    # TODO: Create Subscribers
+    # Create Subscribers
+    pcl_sub = rospy.Subscriber("/pr2/world/points", pc2.PointCloud2, pcl_callback, queue_size=1)
 
     # Create Publishers
+    pcl_test_pub = rospy.Publisher("/pr2/world/points", PointCloud2, queue_size=1)
     pcl_objects_pub = rospy.Publisher("/pcl_objects", PointCloud2, queue_size=1)
     pcl_table_pub = rospy.Publisher("/pcl_table", PointCloud2, queue_size=1)
     pcl_cluster_pub = rospy.Publisher("/pcl_cluster", PointCloud2, queue_size=1)
