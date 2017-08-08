@@ -108,12 +108,11 @@ def pcl_callback(pcl_msg):
 
     # RANSAC Plane Segmentation
     # PassThrough Filtering
-    # TODO: adjust filters to match pr2 environment
     cloud_filtered_z = passthrough_filter(cloud_downsampled, 'z', 0.6, 1.1)
-    cloud_filtered_yz = passthrough_filter(cloud_filtered_z, 'y', -2.3, -1.4)
+    cloud_filtered_xz = passthrough_filter(cloud_filtered_z, 'x', 0.35, 0.85)
 
     # Create the segmentation object
-    seg = cloud_filtered_yz.make_segmenter()
+    seg = cloud_filtered_xz.make_segmenter()
 
     # Set the model you wish to fit
     seg.set_model_type(pcl.SACMODEL_PLANE)
@@ -127,8 +126,8 @@ def pcl_callback(pcl_msg):
     inliers, coefficients = seg.segment()
 
     # Extract inliers and outliers
-    cloud_table = cloud_filtered_yz.extract(inliers, negative=False)
-    cloud_objects = cloud_filtered_yz.extract(inliers, negative=True)
+    cloud_table = cloud_filtered_xz.extract(inliers, negative=False)
+    cloud_objects = cloud_filtered_xz.extract(inliers, negative=True)
 
     # Euclidean Clustering
     white_cloud = XYZRGB_to_XYZ(cloud_objects)
@@ -196,20 +195,20 @@ def pcl_callback(pcl_msg):
 
         # Make the prediction, retrieve the label for the result
         # and add it to detected_objects_labels_list
-        prediction = clf.predict(scaler.transform(feature.reshape(1,-1)))
-        label = encoder.inverse_transform(prediction)[0]
-        detected_objects_labels.append(label)
+        ##  prediction = clf.predict(scaler.transform(feature.reshape(1,-1)))
+        ## label = encoder.inverse_transform(prediction)[0]
+        ## detected_objects_labels.append(label)
 
         # Publish a label into RViz
-        label_pos = list(white_cloud[pts_list[0]])
-        label_pos[2] +=0.4
-        object_markers_pub.publish(make_label(label, label_pos, index))
+        ##label_pos = list(white_cloud[pts_list[0]])
+        ##label_pos[2] +=0.4
+        ##object_markers_pub.publish(make_label(label, label_pos, index))
 
         # Add the detected object to the list of detected objects.
-        do = DetectedObject()
-        do.label = label
-        do.cloud = ros_cluster
-        detected_objects.append(do)
+        ##do = DetectedObject()
+        ##do.label = label
+        ##do.cloud = ros_cluster
+        ##detected_objects.append(do)
 
     rospy.loginfo('Detected {} objects: {}'.format(len(detected_objects_labels), detected_objects_labels))
 
