@@ -101,7 +101,7 @@ def pcl_callback(pcl_msg):
     
     # Statistical Outlier Filtering
     # TODO: adjust number of neighboring points to analyze (mean_k)
-    outlier_filtered = outlier_filter(point_cloud, 50, 1.0)
+    outlier_filtered = outlier_filter(point_cloud, 15, 0.3)
 
     # Voxel Grid Downsampling
     cloud_downsampled = vox_downsample(outlier_filtered)
