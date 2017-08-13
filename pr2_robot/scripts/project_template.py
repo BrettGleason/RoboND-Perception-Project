@@ -225,17 +225,26 @@ def pcl_callback(pcl_msg):
 # function to load parameters and request PickPlace service
 def pr2_mover(object_list):
 
-    # TODO: Initialize variables
+    # Initialize variables
+    labels = []
+    centroids = []
 
-    # TODO: Get/Read parameters
+    # Get/Read parameters
+    object_list_param = rospy.get_param('/object_list')
 
-    # TODO: Parse parameters into individual variables
+    # Parse parameters into individual variables
+    object_name = object_list_param[i]['name']
+    object_group = object_list_param[i]['group']
 
     # TODO: Rotate PR2 in place to capture side tables for the collision map
 
-    # TODO: Loop through the pick list
+    # Loop through the pick list
+    for object in objects:
 
-        # TODO: Get the PointCloud for a given object and obtain it's centroid
+        # Get the PointCloud for a given object and obtain it's centroid
+        labels.append(object.label)
+        points_arr = ros_to_pcl(object.cloud).to_array()
+        centroids.append(np.asscalar(np.mean(points_arr, axis=0)[:3]))
 
         # TODO: Create 'place_pose' for the object
 
