@@ -26,7 +26,13 @@ if __name__ == '__main__':
     models = [\
        'biscuits',
        'soap',
-       'soap2']
+       'soap2',
+       'book',
+       'glue',
+       'sticky_notes',
+       'snacks',
+       'eraser']
+
        
 
     # Disable gravity and delete the ground plane
