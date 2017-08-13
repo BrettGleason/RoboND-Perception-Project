@@ -100,7 +100,6 @@ def pcl_callback(pcl_msg):
     point_cloud = ros_to_pcl(pcl_msg)
     
     # Statistical Outlier Filtering
-    # TODO: adjust number of neighboring points to analyze (mean_k)
     outlier_filtered = outlier_filter(point_cloud, 15, 0.3)
 
     # Voxel Grid Downsampling
@@ -195,20 +194,20 @@ def pcl_callback(pcl_msg):
 
         # Make the prediction, retrieve the label for the result
         # and add it to detected_objects_labels_list
-        ##  prediction = clf.predict(scaler.transform(feature.reshape(1,-1)))
-        ## label = encoder.inverse_transform(prediction)[0]
-        ## detected_objects_labels.append(label)
+        prediction = clf.predict(scaler.transform(feature.reshape(1,-1)))
+        label = encoder.inverse_transform(prediction)[0]
+        detected_objects_labels.append(label)
 
         # Publish a label into RViz
-        ##label_pos = list(white_cloud[pts_list[0]])
-        ##label_pos[2] +=0.4
-        ##object_markers_pub.publish(make_label(label, label_pos, index))
+        label_pos = list(white_cloud[pts_list[0]])
+        label_pos[2] +=0.4
+        object_markers_pub.publish(make_label(label, label_pos, index))
 
         # Add the detected object to the list of detected objects.
-        ##do = DetectedObject()
-        ##do.label = label
-        ##do.cloud = ros_cluster
-        ##detected_objects.append(do)
+        do = DetectedObject()
+        do.label = label
+        do.cloud = ros_cluster
+        detected_objects.append(do)
 
     rospy.loginfo('Detected {} objects: {}'.format(len(detected_objects_labels), detected_objects_labels))
 
@@ -278,7 +277,12 @@ if __name__ == '__main__':
     object_markers_pub = rospy.Publisher("/object_markers", Marker, queue_size=1)
     detected_objects_pub = rospy.Publisher("/detected_objects", DetectedObjectsArray, queue_size=1)
 
-    # TODO: Load Model From disk
+    # Load Model From disk
+    model = pickle.load(open('model.sav', 'rb'))
+    clf = model['classifier']
+    encoder = LabelEncoder()
+    encoder.classes_ = model['classes']
+    scaler = model['scaler']
 
     # Initialize color_list
     get_color_list.color_list = []
