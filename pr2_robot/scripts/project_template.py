@@ -228,9 +228,39 @@ def pr2_mover(object_list):
     # Initialize variables
     labels = []
     centroids = []
+    test_scene_num = Int32()
+    object_name = String()
+    arm_name = String()
+    pick_pose = Pose()
+    place_pose = Pose()
 
     # Get/Read parameters
+    # TODO: Move assignments inside the for loop as appropriate, replace i with the iterator used
     object_list_param = rospy.get_param('/object_list')
+    dropbox_param = rospy.get_param('/dropbox')
+    # TODO: get actual test_scene number
+    test_scene_num.data = 1
+    object_name.data = object_list_param[i]['name']
+
+    # Replace with object_group?
+    if object_list_param[i]['group'] == 'green':
+        arm_name.data = 'right'
+    else:
+        arm_name.data = 'left'
+    
+    pick_pose.x = centroid[0] 
+    pick_pose.y = centroid[1]
+    pick_pose.z = centroid[2]
+
+    if dropbox_param[i]['name'] == 'right':
+        place_pose.x = 0
+        place_pose.y = 0.71
+        place_pose.z = 0.605
+
+    else:
+        place_pose.x = 0
+        place_pose.y = -0.71
+        place_pose.z = 0.605
 
     # Parse parameters into individual variables
     object_name = object_list_param[i]['name']
@@ -244,7 +274,8 @@ def pr2_mover(object_list):
         # Get the PointCloud for a given object and obtain it's centroid
         labels.append(object.label)
         points_arr = ros_to_pcl(object.cloud).to_array()
-        centroids.append(np.asscalar(np.mean(points_arr, axis=0)[:3]))
+        centroid = np.mean(points_arr, axis=0)[:3]
+        centroids.append(np.asscalar(centroid))
 
         # TODO: Create 'place_pose' for the object
 
