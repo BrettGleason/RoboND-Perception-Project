@@ -301,11 +301,11 @@ def pr2_mover(object_list):
             print "Service call failed: %s"%e
 
     # Output your request parameters into output yaml file
-    if test_scene_num.data = 1:
+    if test_scene_num.data == 1:
         send_to_yaml(output_1.yaml, dict_list)
-    else if test_scene_num.data = 2:
+    elif test_scene_num.data == 2:
         send_to_yaml(output_2.yaml, dict_list)
-    else if test_scene_num.data = 3:
+    elif test_scene_num.data == 3:
         send_to_yaml(output_3.yaml, dict_list)
 
 
