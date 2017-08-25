@@ -256,7 +256,15 @@ def pr2_mover(object_list):
 
         # Get the PointCloud for a given object and obtain it's centroid
         labels.append(object_name.data)
-        points_arr = ros_to_pcl(item.cloud).to_array()
+        
+        # Loop through object list until the label of the detected object
+        # matches the item name in the pick list. At that point get the point
+        # cloud from the detected object
+        for obj in object_list:
+            if obj.label == object_name.data:
+                points_arr = ros_to_pcl(obj.cloud).to_array()
+                break
+
         centroid = np.mean(points_arr, axis=0)[:3]
         centroids.append(np.asscalar(centroid))
 
