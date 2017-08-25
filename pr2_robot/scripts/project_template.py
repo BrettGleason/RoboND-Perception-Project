@@ -269,26 +269,25 @@ def pr2_mover(object_list):
         centroids.append(centroid)
 
         # Create 'pick_pose' for the object
-        pick_pose.x = np.asscalar(centroid[0])
-        pick_pose.y = np.asscalar(centroid[1])
-        pick_pose.z = np.asscalar(centroid[2])
-
-        # Create 'place_pose' for the object
-        if dropbox_param[item]['name'] == 'right':
-            place_pose.x = 0
-            place_pose.y = 0.71
-            place_pose.z = 0.605
-
-        else:
-            place_pose.x = 0
-            place_pose.y = -0.71
-            place_pose.z = 0.605
+        pick_pose.position.x = np.asscalar(centroid[0])
+        pick_pose.position.y = np.asscalar(centroid[1])
+        pick_pose.position.z = np.asscalar(centroid[2])
 
         # Assign the arm to be used for pick_place
         if item['group'] == 'green':
             arm_name.data = 'right'
         else:
             arm_name.data = 'left'
+
+        # Create 'place_pose' for the object
+        # Loop through dropbox list, match the dropbox to the pick list and 
+        # parse the dropbox position
+        for box in dropbox_param:
+            if box['name'] == arm_name.data:
+                place_pose.position.x = box['position'][0]
+                place_pose.position.y = box['position'][1]
+                place_pose.position.z = box['position'][2]
+                break
 
         # Create a list of dictionaries (made with make_yaml_dict()) for later output to yaml format
         yaml_dict = make_yaml_dict(test_scene_num, arm_name, object_name, pick_pose, place_pose)
