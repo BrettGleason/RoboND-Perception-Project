@@ -266,12 +266,12 @@ def pr2_mover(object_list):
                 break
 
         centroid = np.mean(points_arr, axis=0)[:3]
-        centroids.append(np.asscalar(centroid))
+        centroids.append(centroid)
 
         # Create 'pick_pose' for the object
-        pick_pose.x = centroid[0] 
-        pick_pose.y = centroid[1]
-        pick_pose.z = centroid[2]
+        pick_pose.x = np.asscalar(centroid[0])
+        pick_pose.y = np.asscalar(centroid[1])
+        pick_pose.z = np.asscalar(centroid[2])
 
         # Create 'place_pose' for the object
         if dropbox_param[item]['name'] == 'right':
