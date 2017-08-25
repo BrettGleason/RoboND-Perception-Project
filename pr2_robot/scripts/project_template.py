@@ -249,14 +249,14 @@ def pr2_mover(object_list):
     # TODO: Rotate PR2 in place to capture side tables for the collision map
 
     # Loop through the pick list
-    for object in objects:
+    for item in object_list_param:
 
         # Get object name
-        object_name.data = object_list_param[object]['name']
+        object_name.data = item['name']
 
         # Get the PointCloud for a given object and obtain it's centroid
-        labels.append(object.label)
-        points_arr = ros_to_pcl(object.cloud).to_array()
+        labels.append(object_name.data)
+        points_arr = ros_to_pcl(item.cloud).to_array()
         centroid = np.mean(points_arr, axis=0)[:3]
         centroids.append(np.asscalar(centroid))
 
@@ -266,7 +266,7 @@ def pr2_mover(object_list):
         pick_pose.z = centroid[2]
 
         # Create 'place_pose' for the object
-        if dropbox_param[object]['name'] == 'right':
+        if dropbox_param[item]['name'] == 'right':
             place_pose.x = 0
             place_pose.y = 0.71
             place_pose.z = 0.605
@@ -277,7 +277,7 @@ def pr2_mover(object_list):
             place_pose.z = 0.605
 
         # Assign the arm to be used for pick_place
-        if object_list_param[object]['group'] == 'green':
+        if item['group'] == 'green':
             arm_name.data = 'right'
         else:
             arm_name.data = 'left'
