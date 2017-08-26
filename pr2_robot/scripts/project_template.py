@@ -239,7 +239,7 @@ def pr2_mover(object_list):
     object_list_param = rospy.get_param('/object_list')
     dropbox_param = rospy.get_param('/dropbox')
     # TODO: get actual test_scene number
-    test_scene_num.data = 1
+    test_scene_num.data = 3
 
     # Parse parameters into individual variables
         # This is done inside the for loop
