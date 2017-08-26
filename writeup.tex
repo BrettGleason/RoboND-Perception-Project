@@ -4,6 +4,7 @@
 \usepackage{titling}
 \usepackage{graphicx}
 \graphicspath{ {writeupimages/} }
+\usepackage{float}
 
 \titleformat{\section}
 {\Large\bfseries}
@@ -20,7 +21,7 @@
 \titleformat{\subsubsection}
 {\bfseries}
 {}
-{0em)
+{0em}
 {}
 
 
@@ -32,10 +33,10 @@
 \maketitle
 
 The rubric for this project can be found at the following URL: \\
-https://review.udacity.com/#!/rubrics/1067/view \\
+https://review.udacity.com/\#!/rubrics/1067/view \\
 I will consider the rubric points individually and describe how I addressed each point in my implementation.
 
-# Required Steps for a Passing Submission:
+\subsubsection{Required Steps for a Passing Submission:}
 
 \begin{enumerate}
     \item 1. Extract features and train an SVM model on new objects (see `pick\_list\_*.yaml` in `/pr2\_robot/config/` for the list of models you'll be trying to identify). 
@@ -77,6 +78,48 @@ You're reading it!
 
 \section{Exercise 1, 2 and 3 pipeline implemented}
 \subsection{1. Complete Exercise 1 steps. Pipeline for filtering and RANSAC plane fitting implemented.}
+The objective of exercise 1 was to take a simulated scene with several objects on a table and create two separate point cloud files: the first containing the table surface and the second containing the objects on the table. To accomplish this, several filters were used as well as the random sample consensus (or RANSAC) algorithm.
+
+\subsubsection{Voxel Grid Downsampling}
+The starting point for this exercise is a point cloud file from a simulated RGB-D camera. The point cloud from the RGB-D camera is very dense, meaning any operations on it will be very computationally intense.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{ex1tabletop.png}
+    \caption{Point cloud file from RGB-D camera}
+    \label{fig:camera}
+\end{figure}
+
+Voxel grid downsampling reduces the density of the point cloud, allowing for faster computations without any loss in the ability for the point cloud data to be used for object recognition later in the perception pipeline. A voxel can be thought of as a three dimensional analog to a pixel. The input point cloud can be divided into a voxel grid by dividing it into cubic regions. To perform the voxel grid downsampling, the points within each cubic region (voxel) are replaced with a single point that represents the average of the points contained within the voxel. By choosing the size of the voxel appropriately, the downsampled point cloud will provide a good approximation of the original point cloud while allowing faster computation in later steps.
+For this project, voxel grid downsampling is accomplished using the python PCL library. A VoxelGrid filter object is created from the input point cloud and a filter() function can be run on this object after the size of the voxel is set.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{ex1downsampled.png}
+    \caption{Point cloud file after voxel grid downsampling}
+    \label{fig:downsampled}
+\end{figure}
+
+\subsubsection{Pass Through Filtering}
+Because the robot and the table are both stationary for this project, 
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{ex1passthrough.png}
+    \caption{Point cloud file after passthrough filtering}
+    \label{fig:passthrough}
+\end{figure}
+
+\subsubsection{RANSAC}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{ex1extractedinliers.png}
+    \caption{RANSAC inliers}
+    \label{fig:inliers}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{ex1extractedoutliers.png}
+    \caption{RANSAC outliers}
+    \label{fig:outliers}
+\end{figure}
 
 \subsection{2. Complete Exercise 2 steps: Pipeline including clustering for segmentation implemented.}
 
