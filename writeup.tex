@@ -99,15 +99,16 @@ For this project, voxel grid downsampling is accomplished using the python PCL l
 \end{figure}
 
 \subsubsection{Pass Through Filtering}
-Because the robot and the table are both stationary for this project, 
+Because the robot and the table are both stationary for this project it is easy to filter out parts of the point cloud that are not relevant. For this exercise a region on the Z-axis was selected such that only the table and the objects on it would be able to "pass through" the filter as shown in figure \ref{fig:passthrough}.
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{ex1passthrough.png}
-    \caption{Point cloud file after passthrough filtering}
+    \caption{Point cloud file after pass through filtering}
     \label{fig:passthrough}
 \end{figure}
 
 \subsubsection{RANSAC}
+Finally, random sample consensus (or RANSAC) is an algorithm that can be used to remove the table from the point cloud, leaving only the objects of interest behind. RANSAC determines whether each point in the cloud belongs to a particular model. If the point fits the model it is classified as an inlier, if it doesn't fit it is an outlier. For this exercise a plane was used as the model, resulting in the points belonging to the table being classified as inliers to the plane, while the points belonging to the objects on the table were classified as outliers. At this point the objective of the exercise is accomplished, the input point cloud from the RGB-D camera has been separated into a point cloud containing the table surface and a point cloud containing the objects of interest.
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{ex1extractedinliers.png}
@@ -122,6 +123,7 @@ Because the robot and the table are both stationary for this project,
 \end{figure}
 
 \subsection{2. Complete Exercise 2 steps: Pipeline including clustering for segmentation implemented.}
+For the second exercise the objective was to take the filtered point cloud containing the objects as shown in figure \ref{fig:outliers} and
 
 \subsection{3. Complete Exercise 3 Steps.  Features extracted and SVM trained.  Object recognition implemented.}
 
