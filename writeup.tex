@@ -39,15 +39,15 @@ I will consider the rubric points individually and describe how I addressed each
 \subsubsection{Required Steps for a Passing Submission:}
 
 \begin{enumerate}
-    \item 1. Extract features and train an SVM model on new objects (see `pick\_list\_*.yaml` in `/pr2\_robot/config/` for the list of models you'll be trying to identify). 
-    \item 2. Write a ROS node and subscribe to `/pr2/world/points` topic. This topic contains noisy point cloud data that you must work with.
-    \item 3. Use filtering and RANSAC plane fitting to isolate the objects of interest from the rest of the scene.
-    \item 4. Apply Euclidean clustering to create separate clusters for individual items.
-    \item 5. Perform object recognition on these objects and assign them labels (markers in RViz).
-    \item 6. Calculate the centroid (average in x, y and z) of the set of points belonging to that each object.
-    \item 7. Create ROS messages containing the details of each object (name, pick\_pose, etc.) and write these messages out to `.yaml` files, one for each of the 3 scenarios (`test1-3.world` in `/pr2\_robot/worlds/`).  See the example `output.yaml` for details on what the output should look like.  
-    \item 8. Submit a link to your GitHub repo for the project or the Python code for your perception pipeline and your output `.yaml` files (3 `.yaml` files, one for each test world).  You must have correctly identified 100\% of objects from `pick\_list\_1.yaml` for `test1.world`, 80\% of items from `pick\_list\_2.yaml` for `test2.world` and 75\% of items from `pick\_list\_3.yaml` in `test3.world`.
-    \item 9. Congratulations!  You're done!
+    \item Extract features and train an SVM model on new objects (see `pick\_list\_*.yaml` in `/pr2\_robot/config/` for the list of models you'll be trying to identify). 
+    \item Write a ROS node and subscribe to `/pr2/world/points` topic. This topic contains noisy point cloud data that you must work with.
+    \item Use filtering and RANSAC plane fitting to isolate the objects of interest from the rest of the scene.
+    \item Apply Euclidean clustering to create separate clusters for individual items.
+    \item Perform object recognition on these objects and assign them labels (markers in RViz).
+    \item Calculate the centroid (average in x, y and z) of the set of points belonging to that each object.
+    \item Create ROS messages containing the details of each object (name, pick\_pose, etc.) and write these messages out to `.yaml` files, one for each of the 3 scenarios (`test1-3.world` in `/pr2\_robot/worlds/`).  See the example `output.yaml` for details on what the output should look like.  
+    \item Submit a link to your GitHub repo for the project or the Python code for your perception pipeline and your output `.yaml` files (3 `.yaml` files, one for each test world).  You must have correctly identified 100\% of objects from `pick\_list\_1.yaml` for `test1.world`, 80\% of items from `pick\_list\_2.yaml` for `test2.world` and 75\% of items from `pick\_list\_3.yaml` in `test3.world`.
+    \item Congratulations!  You're done!
 \end{enumerate}
 
 
@@ -80,21 +80,39 @@ You're reading it!
 \subsection{1. Complete Exercise 1 steps. Pipeline for filtering and RANSAC plane fitting implemented.}
 The objective of exercise 1 was to take a simulated scene with several objects on a table and create two separate point cloud files: the first containing the table surface and the second containing the objects on the table. To accomplish this, several filters were used as well as the random sample consensus (or RANSAC) algorithm.
 
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{gazeboscene.png}
+    \caption{Simulated environment in Gazebo with camera on sensor stick, objects on table}
+    \label{fig:gazebo}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{scene.png}
+    \caption{Simulated environment in RViz with camera on sensor stick, objects on table}
+    \label{fig:scene}
+\end{figure}
+
 \subsubsection{Voxel Grid Downsampling}
 The starting point for this exercise is a point cloud file from a simulated RGB-D camera. The point cloud from the RGB-D camera is very dense, meaning any operations on it will be very computationally intense.
 
 \begin{figure}[H]
+    \includegraphics[width=\linewidth]{sspc.png}
+    \caption{Point cloud file from RGB-D camera as shown in Rviz}
+    \label{fig:Rvizcamera}
+\end{figure}
+
+\begin{figure}[H]
     \includegraphics[width=\linewidth]{ex1tabletop.png}
-    \caption{Point cloud file from RGB-D camera}
+    \caption{Point cloud file from RGB-D camera as shown in PCL viewer}
     \label{fig:camera}
 \end{figure}
 
 Voxel grid downsampling reduces the density of the point cloud, allowing for faster computations without any loss in the ability for the point cloud data to be used for object recognition later in the perception pipeline. A voxel can be thought of as a three dimensional analog to a pixel. The input point cloud can be divided into a voxel grid by dividing it into cubic regions. To perform the voxel grid downsampling, the points within each cubic region (voxel) are replaced with a single point that represents the average of the points contained within the voxel. By choosing the size of the voxel appropriately, the downsampled point cloud will provide a good approximation of the original point cloud while allowing faster computation in later steps.
-For this project, voxel grid downsampling is accomplished using the python PCL library. A VoxelGrid filter object is created from the input point cloud and a filter() function can be run on this object after the size of the voxel is set.
+For this project, voxel grid downsampling is accomplished using the python PCL library (Point Cloud Library). A VoxelGrid filter object is created from the input point cloud and a filter() function can be run on this object after the size of the voxel is set.
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{ex1downsampled.png}
-    \caption{Point cloud file after voxel grid downsampling}
+    \caption{Point cloud file after voxel grid downsampling as shown in PCL viewer}
     \label{fig:downsampled}
 \end{figure}
 
@@ -103,7 +121,7 @@ Because the robot and the table are both stationary for this project it is easy 
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{ex1passthrough.png}
-    \caption{Point cloud file after pass through filtering}
+    \caption{Point cloud file after pass through filtering as shown in PCL viewer}
     \label{fig:passthrough}
 \end{figure}
 
@@ -112,18 +130,44 @@ Finally, random sample consensus (or RANSAC) is an algorithm that can be used to
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{ex1extractedinliers.png}
-    \caption{RANSAC inliers}
+    \caption{RANSAC inliers as shown in PCL viewer}
     \label{fig:inliers}
 \end{figure}
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{ex1extractedoutliers.png}
-    \caption{RANSAC outliers}
+    \caption{RANSAC outliers as shown in PCL viewer}
     \label{fig:outliers}
 \end{figure}
 
 \subsection{2. Complete Exercise 2 steps: Pipeline including clustering for segmentation implemented.}
-For the second exercise the objective was to take the filtered point cloud containing the objects as shown in figure \ref{fig:outliers} and
+For the second exercise the objective was to take the filtered point cloud containing the objects as shown in figure \ref{fig:outliers} and use Euclidean clustering to segment the points belonging to each individual object. In this exercise an additional pass through filter along the Y-axis was added so that the edge of the table would be removed from the scene.
+
+The Euclidean clustering algorithm requires that a k-dimensional tree (or k-d tree) be constructed from the input point cloud before the algorithm is run. A k-d tree is a type of binary search tree that allows a nearest neighbor search to be done efficiently. K-d trees are not the only data structure that can be used to efficiently perform a nearest neighbor seach and accomplish point cloud segmentation, but PCL's implementation of Euclidean Clustering requires a k-d tree.
+
+Euclidean clustering segments the points in the point cloud into clusters based on several parameters:
+\begin{itemize}
+    \item Cluster tolerance
+    \item Minimum cluster size
+    \item Maximum cluster size
+\end{itemize}
+
+The cluster tolerance is the maximum distance that a point can have to its nearest neighbor and remain part of the cluster. Cluster tolerance needs to be set large enough that the points within each object are considered part of the cluster but small enough that the distance between two objects is not within the cluster tolerance, causing the two objects to become part of the same cluster.
+Minimum cluster size is the minimum number of points needed to constitute a cluster. Minimum cluster size needs to be set large enough that noise in the data is not considered a cluster, but small enough that an actual cluster is not disqualified. 
+Maximum cluster size is the maximum number of points that can constitute a cluster, it must be set large enough that none of the objects in the point cloud are disqualified.
+Once the clustering parameters have been set appropriately, the Euclidean clustering algorithm can be applied to the point cloud. Figure \ref{fig:preec} shows the point cloud pre Euclidean clustering, while figure \ref{fig:ec} shows the point cloud post Euclidean clustering. The clusters are colorized during the clustering step for visual clarity.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{preec.png}
+    \caption{RANSAC outliers pre Euclidean Clustering, as shown in RViz}
+    \label{fig:preec}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{ec.png}
+    \caption{Point cloud after Euclidean clustering, as shown in RViz}
+    \label{fig:ec}
+\end{figure}
 
 \subsection{3. Complete Exercise 3 Steps.  Features extracted and SVM trained.  Object recognition implemented.}
 
