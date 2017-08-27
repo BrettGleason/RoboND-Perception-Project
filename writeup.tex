@@ -143,6 +143,7 @@ Finally, random sample consensus (or RANSAC) is an algorithm that can be used to
 \subsection{2. Complete Exercise 2 steps: Pipeline including clustering for segmentation implemented.}
 For the second exercise the objective was to take the filtered point cloud containing the objects as shown in figure \ref{fig:outliers} and use Euclidean clustering to segment the points belonging to each individual object. In this exercise an additional pass through filter along the Y-axis was added so that the edge of the table would be removed from the scene.
 
+\subsubsection{Euclidean Clustering}
 The Euclidean clustering algorithm requires that a k-dimensional tree (or k-d tree) be constructed from the input point cloud before the algorithm is run. A k-d tree is a type of binary search tree that allows a nearest neighbor search to be done efficiently. K-d trees are not the only data structure that can be used to efficiently perform a nearest neighbor seach and accomplish point cloud segmentation, but PCL's implementation of Euclidean Clustering requires a k-d tree.
 
 Euclidean clustering segments the points in the point cloud into clusters based on several parameters:
@@ -170,7 +171,54 @@ Once the clustering parameters have been set appropriately, the Euclidean cluste
 \end{figure}
 
 \subsection{3. Complete Exercise 3 Steps.  Features extracted and SVM trained.  Object recognition implemented.}
+In exercise-1 and 2 the input point cloud from the RGB-D camera was filtered and segmented, leaving only clusters of points belonging to the objects of interest. The goal of exercise 3 was to train a support vector machine to recognize the objects in the filtered and segmented point cloud.
 
+\subsubsection{SVM}
+A support vector machine (SVM) is a machine learning algorithm used to classify objects. The SVM is trained on a data set containing multiple objects, where each object consists of a feature vector and a label. The SVM maps the feature vectors and the labels and uses the training data to draw boundaries between the different objects in the dataset. Once these boundaries are drawn, a feature vector can be input to the model and it will be characterized and given a label based on which boundaries it falls between.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{SVMexample.png}
+    \caption{Example SVM data set}
+    \label{fig:SVMex}
+\end{figure}
+
+Figure \ref{fig:SVMex} shows an example SVM data set based on two feature vectors, feature A and feature B. The feature vectors are grouped into clusters and then boundaries are drawn between the clusters to separate them into classes. An additional object given to the SVM could now be classified based on where it falls within this dataset.
+
+\subsubsection{Surface Normals and Color}
+The feature vectors used for this exercise are the color and the surface normal vectors. For the color vector, 3 color channels are turned into histograms and concatenated, then normalized. Initially the 3 channels were RGB, but they were changed to HSV later to improve the model. The surface normal vector was calculated similarly to the color vector, except that instead of 3 color channels to make the histograms the X, Y, and Z components of the surface normal vectors were used. After the surface normal histograms are concatenated and normalized, the color and surface normal histograms can be concatenated to create the complete feature vector.
+
+\subsubsection{SVM Training}
+The SVM was trained by placing each object to be classified in a random pose for the camera. The features were extracted and used to assemble the training data set. Initially each object was placed in 5 random poses. Once the features had been generated, the python Scikit-learn package was used to train the SVM. To represent the accuracy of the SVM, a confusion matrix was created. The Y axis represents the actual instances of the object while the X axis represents the SVM's classified instances of the object. On the left is a confusion matrix with the raw counts, on the right is a confusion matrix with the counts normalized from 0-1. Figure \ref{fig:SVMinit} shows the confusion matrix for the first SVM.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{ex3SVMinitial.png}
+    \caption{Confusion matrix for the first SVM}
+    \label{fig:SVMinit}
+\end{figure}
+
+The initial result after training the SVM was not good enough to correctly identify the objects. The feature vector was changed to use HSV color space instead of RGB in an attempt to increase the accuracy of the SVM. Figure \ref{fig:SVMHSV} shows the results after generating features and re-training the SVM.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{ex3SVMHSV.png}
+    \caption{Confusion matrix using HSV color space instead of RGB}
+    \label{fig:SVMHSV}
+\end{figure}
+
+After converting from RGB to HSV color vectors the SVM was still not accurate enough for object identification. The next step was to increase the number of poses for each object from 5 to 25 for the feature generation. Figure \ref{fig:SVM25} shows the results of training the SVM with the additional feature data.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{ex3SVM25.png}
+    \caption{Confusion matrix after using 25 poses for each object for feature generation}
+    \label{fig:SVM25}
+\end{figure}
+
+After this adjustment the SVM was accurate enough to correctly identify the objects on the table and exercise 3 was complete.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{classification.png}
+    \caption{Point cloud after clustering with object recognition applied. Shown in RViz.}
+    \label{fig:classification}
+\end{figure}
 
 \section{Pick and Place Setup}
 
