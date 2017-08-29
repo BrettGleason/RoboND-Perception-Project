@@ -240,7 +240,7 @@ The project simulation is done with a PR2 robot from Willow Garage. The robot is
 \end{figure}
 
 \subsubsection{Perception Pipeline - Filtering and Segmentation}
-The filtering portion of the perception pipeline for the project was implemented similarly to exercise-1. An additional challenge introduced in the project is that the input from the RGB-D camera now contains noise.
+The filtering portion of the perception pipeline for the project was implemented similarly to exercise-1. An additional challenge introduced in the project is that the input from the RGB-D camera now contained noise.
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{pr2noise.png}
@@ -248,7 +248,50 @@ The filtering portion of the perception pipeline for the project was implemented
     \label{fig:noise}
 \end{figure}
 
+To remove the noise, a statistical outlier filter was used. In the outlier filter, the distance between each point and its neighboring points are considered. If the point under consideration is further away from its neighbors than the mean distance plus a multiple of the standard deviation of the mean distance, it is considered an outlier and removed. The PCL statistical outlier filter object was used to perform this filtration
+
+After the statistical outlier filter, the filtration steps are very similar to the first exercise. Voxel grid downsampling was performed to increase computational speed. A passthrough filter was used to isolate the table and the objects. RANSAC plane fitting was used to separate the table and the objects into separate point clouds.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{pr2objects.png}
+    \caption{Table objects after the filtration steps have been performed.}
+    \label{fig:pr2objects}
+\end{figure}
+
+Once the filtration step was complete, the point cloud was segmented using Euclidean clustering as in exercise-2.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{pr2cluster.png}
+    \caption{Table objects after Euclidean clustering}
+    \label{fig:pr2cluster}
+\end{figure}
+
 \subsubsection{Perception Pipeline - Object Recognition}
+Object recognition was performed using a support vector machine as in exercise-3. The new test scenes contained different objects so the SVM needed to be retrained. I used 25 poses per object for the first attempt because it was successful in exercise-3. Figure \ref{fig:pr2SVM25} shows the confusion matrix after training the SVM with this data.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{pr2SVM25.png}
+    \caption{Confusion matrix for the SVM trained on 25 poses per object}
+    \label{fig:pr2SVM25}
+\end{figure}
+
+Unfortunately the object recognition had too many errors when using this model. A second attempt was made using 50 poses per object.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{pr2SVM50.png}
+    \caption{Confusion matrix for the SVM trained on 50 poses per object}
+    \label{fig:pr2SVM50}
+\end{figure}
+
+Figure \ref{fig:pr2objrec} shows the results of the object recognition step using this model on the third test world.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{pr2objrec.png}
+    \caption{Object recognition using an SVM trained on 50 poses per object}
+    \label{fig:pr2objrec}
+\end{figure}
+
+\subsubsection{Create PickPlace Request}
 
 % Spend some time at the end to discuss your code, what techniques you used, what worked and why, where the implementation might fail and how you might improve it if you were going to pursue this project further.  
 
