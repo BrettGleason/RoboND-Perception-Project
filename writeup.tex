@@ -222,7 +222,7 @@ After this adjustment the SVM was accurate enough to correctly identify the obje
 
 \section{Pick and Place Setup}
 
-\subsection{1. For all three tabletop setups (`test*.world`), perform object recognition, then read in respective pick list (`pick\_list\_*.yaml`). Next construct the messages that would comprise a valid `PickPlace` request output them to `.yaml` format.}
+\subsection{1. For all three tabletop setups (`test*.world`), perform object recognition, then read in respective pick list (`pick\_list\_*.yaml`). Next construct the messages that would comprise a valid `PickPlace` request output them to `.yaml` format.}\label{subsec:projintro}
 
 The project simulation is done with a PR2 robot from Willow Garage. The robot is presented with three different arrangements of items on the table. For a successful project the robot must get instructions on which items to pick from the pick\_list\_*.yaml file, find the object on the table, construct a 'PickPlace' request for each item in the scene and output the requests to a .yaml file. A PickPlace request is an assembly of multiple ROS messages containing the following information:
 \begin{itemize}
@@ -292,6 +292,13 @@ Figure \ref{fig:pr2objrec} shows the results of the object recognition step usin
 \end{figure}
 
 \subsubsection{Create PickPlace Request}
+Once the object recognition was working sufficiently well it was time to create the PickPlace request. Here are the components of a PickPlace request as detailed in section \ref{subsec:projintro}: test scene number, object name, arm name, pick pose, and place pose. Each of the three test worlds has a corresponding pick\_list.yaml file that was loaded into the ROS parameter server. The pick list details each object that is expected to be found in the test world and which bin it should be placed in.
+
+The test scene number is derived from which test scene is loaded, it is the same for every item in the scene. The name for each item is listed on the pick list. The arm to be used for the pick and place operation is also determined by parsing the pick list. The pick list lists one of two groups for each item corresponding to the bins at the robots side: green corresponds to the bin on the right, while red corresponds to the group on the left. The arm name is assigned as either right or left to match the bin the item is to be placed in.
+
+To determine the position of the item to be picked, the object name from the pick list must first be matched to a label given to one of the objects in the robot's field of view by the object detection step. Once the object is found, its centroid must be calculated. Using the point cloud for the detected object, the average position of the points along each axis is calculated and assigned as the X, Y, and Z positions of the pick pose.
+
+Lastly, the position where the object should be placed can be determined. There are two possible positions for the place pose based on which bin the object is assigned to. The bin is already known from assigning the correct arm for the operation, all that is left is to parse the drop box positions. There is a dropbox.yaml file that was loaded into the ROS parameter server along with the pick list. Using the arm name the bin position can be parsed similarly to the pick list and the place pose can be found.
 
 % Spend some time at the end to discuss your code, what techniques you used, what worked and why, where the implementation might fail and how you might improve it if you were going to pursue this project further.  
 
