@@ -300,7 +300,12 @@ To determine the position of the item to be picked, the object name from the pic
 
 Lastly, the position where the object should be placed can be determined. There are two possible positions for the place pose based on which bin the object is assigned to. The bin is already known from assigning the correct arm for the operation, all that is left is to parse the drop box positions. There is a dropbox.yaml file that was loaded into the ROS parameter server along with the pick list. Using the arm name the bin position can be parsed similarly to the pick list and the place pose can be found.
 
-% Spend some time at the end to discuss your code, what techniques you used, what worked and why, where the implementation might fail and how you might improve it if you were going to pursue this project further.  
+\subsubsection{Future Improvements}
+Currently the accuracy for the object dectection is: 3/3 objects in test world 1, 4/5 objects in test world 2, and 7/8 objects in test world 3. There are two potential improvements that I can think of. The first is to increase the number of poses used from training from 50 to something like 500 or 1000 poses per object. This would likely lead to a more accurate model, but it might take a very long time to run the feature generation script. Another possibility is changing the kernel used for the SVM. A linear kernel was used for this project. With a linear kernel, the SVM draws only straight line boundaries between classes. By choosing a nonlinear kernel it may be possible to make more nuanced distinctions between classes, leading to more accurate object detection. Scikit-learn supports linear, polynomial, rbf, and sigmoid kernels, in addition to custom user-defined kernels. Figure \ref{fig:kernel} is an image from the Scikit-learn website showing the results when different kernels are applied to the same set of training data.
 
-
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{SVMkernel.png}
+    \caption{Example of differences between class boundaries using different kernels for the SVM}
+    \label{fig:kernel}
+\end{figure}
 \end{document}
