@@ -78,6 +78,7 @@ You're reading it!
 
 \section{Exercise 1, 2 and 3 pipeline implemented}
 \subsection{1. Complete Exercise 1 steps. Pipeline for filtering and RANSAC plane fitting implemented.}
+
 The objective of exercise 1 was to take a simulated scene with several objects on a table and create two separate point cloud files: the first containing the table surface and the second containing the objects on the table. To accomplish this, several filters were used as well as the random sample consensus (or RANSAC) algorithm.
 
 \begin{figure}[H]
@@ -148,15 +149,13 @@ The Euclidean clustering algorithm requires that a k-dimensional tree (or k-d tr
 
 Euclidean clustering segments the points in the point cloud into clusters based on several parameters:
 \begin{itemize}
-    \item Cluster tolerance
-    \item Minimum cluster size
-    \item Maximum cluster size
+    \item Cluster tolerance - the maximum distance that a point can have to its nearest neighbor and remain part of the cluster. Cluster tolerance needs to be set large enough that the points within each object are considered part of the cluster but small enough that the distance between two objects is not within the cluster tolerance, causing the two objects to become part of the same cluster.
+    \item Minimum cluster size - the minimum number of points needed to constitute a cluster. Minimum cluster size needs to be set large enough that noise in the data is not considered a cluster, but small enough that an actual cluster is not disqualified. 
+    \item Maximum cluster size - the maximum number of points that can constitute a cluster, it must be set large enough that none of the objects in the point cloud are disqualified.
+
 \end{itemize}
 
-The cluster tolerance is the maximum distance that a point can have to its nearest neighbor and remain part of the cluster. Cluster tolerance needs to be set large enough that the points within each object are considered part of the cluster but small enough that the distance between two objects is not within the cluster tolerance, causing the two objects to become part of the same cluster.
-Minimum cluster size is the minimum number of points needed to constitute a cluster. Minimum cluster size needs to be set large enough that noise in the data is not considered a cluster, but small enough that an actual cluster is not disqualified. 
-Maximum cluster size is the maximum number of points that can constitute a cluster, it must be set large enough that none of the objects in the point cloud are disqualified.
-Once the clustering parameters have been set appropriately, the Euclidean clustering algorithm can be applied to the point cloud. Figure \ref{fig:preec} shows the point cloud pre Euclidean clustering, while figure \ref{fig:ec} shows the point cloud post Euclidean clustering. The clusters are colorized during the clustering step for visual clarity.
+Once the clustering parameters have been set appropriately, the Euclidean clustering algorithm can be applied to the point cloud. Figure \ref{fig:preec} shows the point cloud pre Euclidean clustering, while figure \ref{fig:ec} shows the point cloud post Euclidean clustering.
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{preec.png}
@@ -216,7 +215,7 @@ After this adjustment the SVM was accurate enough to correctly identify the obje
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{classification.png}
-    \caption{Point cloud after clustering with object recognition applied. Shown in RViz.}
+    \caption{Point cloud after clustering with object recognition applied. Shown in RViz}
     \label{fig:classification}
 \end{figure}
 
@@ -235,7 +234,7 @@ The project simulation is done with a PR2 robot from Willow Garage. The robot is
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{pr2.png}
-    \caption{Project environment as shown in Gazebo. The third test environment is shown.}
+    \caption{Project environment as shown in Gazebo. The third test environment is shown}
     \label{fig:pr2}
 \end{figure}
 
@@ -244,7 +243,7 @@ The filtering portion of the perception pipeline for the project was implemented
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{pr2noise.png}
-    \caption{Noisy input from RGB-D camera.}
+    \caption{Noisy input from RGB-D camera}
     \label{fig:noise}
 \end{figure}
 
@@ -254,7 +253,7 @@ After the statistical outlier filter, the filtration steps are very similar to t
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{pr2objects.png}
-    \caption{Table objects after the filtration steps have been performed.}
+    \caption{Table objects after the filtration steps have been performed}
     \label{fig:pr2objects}
 \end{figure}
 
